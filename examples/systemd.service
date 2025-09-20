@@ -1,0 +1,30 @@
+#!/bin/bash
+# anthropic-http-proxy systemd service file
+# Copy this to /etc/systemd/system/anthropic-http-proxy.service
+# Then run: sudo systemctl daemon-reload && sudo systemctl enable anthropic-http-proxy && sudo systemctl start anthropic-http-proxy
+
+[Unit]
+Description=Anthropic HTTP Proxy Service
+After=network.target
+
+[Service]
+Type=simple
+User=anthropic-proxy
+Group=anthropic-proxy
+WorkingDirectory=/opt/anthropic-http-proxy
+ExecStart=/opt/anthropic-http-proxy/anthropic-http-proxy
+Restart=always
+RestartSec=10
+Environment=CONFIG_PATH=/etc/anthropic-http-proxy/config.toml
+Environment=PORT=8811
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/anthropic-http-proxy
+ReadWritePaths=/etc/anthropic-http-proxy
+
+[Install]
+WantedBy=multi-user.target

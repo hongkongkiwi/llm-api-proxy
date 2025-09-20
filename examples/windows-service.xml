@@ -1,0 +1,16 @@
+# anthropic-http-proxy Windows Service
+# Save this as anthropic-http-proxy.xml and use with nssm.exe
+
+<service>
+  <id>anthropic-http-proxy</id>
+  <name>Anthropic HTTP Proxy</name>
+  <description>Transparent HTTP proxy for LLM APIs (Anthropic, OpenAI)</description>
+  <executable>C:\opt\anthropic-http-proxy\anthropic-http-proxy.exe</executable>
+  <startmode>Automatic</startmode>
+  <delayedAutoStart>true</delayedAutoStart>
+  <logpath>C:\opt\anthropic-http-proxy\logs</logpath>
+  <logmode>roll</logmode>
+  <depend></depend>
+  <env name="CONFIG_PATH" value="C:\opt\anthropic-http-proxy\config.toml"/>
+  <env name="PORT" value="8811"/>
+</service>

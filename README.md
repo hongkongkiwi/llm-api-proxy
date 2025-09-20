@@ -270,6 +270,130 @@ just --list
 just help
 ```
 
+## System Startup
+
+### Linux (systemd)
+
+For automatic startup on Linux systems using systemd:
+
+1. **Install the service:**
+   ```bash
+   sudo ./examples/install-linux.sh
+   ```
+
+2. **Manual installation:**
+   ```bash
+   # Copy the service file
+   sudo cp examples/systemd.service /etc/systemd/system/anthropic-http-proxy.service
+   
+   # Create user and directories
+   sudo useradd -r -s /bin/false anthropic-proxy
+   sudo mkdir -p /opt/anthropic-http-proxy /etc/anthropic-http-proxy /var/log/anthropic-http-proxy
+   sudo chown -R anthropic-proxy:anthropic-proxy /opt/anthropic-http-proxy /etc/anthropic-http-proxy /var/log/anthropic-http-proxy
+   
+   # Copy binary and config
+   sudo cp target/release/anthropic-http-proxy /opt/anthropic-http-proxy/
+   sudo cp config.toml /etc/anthropic-http-proxy/config.toml
+   
+   # Enable and start service
+   sudo systemctl daemon-reload
+   sudo systemctl enable anthropic-http-proxy
+   sudo systemctl start anthropic-http-proxy
+   ```
+
+3. **Service management:**
+   ```bash
+   sudo systemctl status anthropic-http-proxy
+   sudo systemctl stop anthropic-http-proxy
+   sudo systemctl restart anthropic-http-proxy
+   sudo journalctl -u anthropic-http-proxy -f
+   ```
+
+### macOS (launchd)
+
+For automatic startup on macOS using launchd:
+
+1. **Install the service:**
+   ```bash
+   sudo ./examples/install-macos.sh
+   ```
+
+2. **Manual installation:**
+   ```bash
+   # Copy the plist file
+   sudo cp examples/launchd.plist /Library/LaunchDaemons/com.anthropic.http-proxy.plist
+   
+   # Create user and directories
+   sudo sysadminctl -addUser anthropic-proxy
+   sudo mkdir -p /opt/anthropic-http-proxy /etc/anthropic-http-proxy /var/log/anthropic-http-proxy
+   sudo chown -R anthropic-proxy:anthropic-proxy /opt/anthropic-http-proxy /etc/anthropic-http-proxy /var/log/anthropic-http-proxy
+   
+   # Copy binary and config
+   sudo cp target/release/anthropic-http-proxy /opt/anthropic-http-proxy/
+   sudo cp config.toml /etc/anthropic-http-proxy/config.toml
+   
+   # Load and start service
+   sudo launchctl load /Library/LaunchDaemons/com.anthropic.http-proxy.plist
+   sudo launchctl start com.anthropic.http-proxy
+   ```
+
+3. **Service management:**
+   ```bash
+   sudo launchctl list | grep anthropic
+   sudo launchctl stop com.anthropic.http-proxy
+   sudo launchctl start com.anthropic.http-proxy
+   tail -f /var/log/anthropic-http-proxy/output.log
+   ```
+
+### Windows (NSSM)
+
+For automatic startup on Windows using NSSM (Non-Sucking Service Manager):
+
+1. **Prerequisites:**
+   - Download NSSM from https://nssm.cc
+   - Add NSSM to your PATH or run from the same directory
+
+2. **Install the service:**
+   ```cmd
+   # Run as Administrator
+   examples\install-windows.bat
+   ```
+
+3. **Manual installation:**
+   ```cmd
+   # Install service using NSSM
+   nssm install anthropic-http-proxy C:\opt\anthropic-http-proxy\anthropic-http-proxy.exe
+   nssm set anthropic-http-proxy AppDirectory C:\opt\anthropic-http-proxy
+   nssm set anthropic-http-proxy AppEnvironmentExtra "CONFIG_PATH=C:\opt\anthropic-http-proxy\config.toml" "PORT=8811"
+   nssm set anthropic-http-proxy AppStdout C:\opt\anthropic-http-proxy\logs\output.log
+   nssm set anthropic-http-proxy AppStderr C:\opt\anthropic-http-proxy\logs\error.log
+   nssm set anthropic-http-proxy Start SERVICE_AUTO_START
+   ```
+
+4. **Service management:**
+   ```cmd
+   net start anthropic-http-proxy
+   net stop anthropic-http-proxy
+   sc query anthropic-http-proxy
+   type C:\opt\anthropic-http-proxy\logs\output.log
+   ```
+
+### Docker
+
+For containerized deployment:
+
+```bash
+# Build Docker image
+just docker-build
+
+# Run container
+just docker-run
+
+# Or manually
+docker build -t anthropic-http-proxy .
+docker run -d -p 8811:8811 -v $(pwd)/config.toml:/etc/anthropic-http-proxy/config.toml anthropic-http-proxy
+```
+
 ## Architecture
 
 The proxy is designed to be completely transparent:

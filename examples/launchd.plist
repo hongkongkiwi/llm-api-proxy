@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.anthropic.http-proxy</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/opt/anthropic-http-proxy/anthropic-http-proxy</string>
+    </array>
+    <key>WorkingDirectory</key>
+    <string>/opt/anthropic-http-proxy</string>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>/var/log/anthropic-http-proxy/output.log</string>
+    <key>StandardErrorPath</key>
+    <string>/var/log/anthropic-http-proxy/error.log</string>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>CONFIG_PATH</key>
+        <string>/etc/anthropic-http-proxy/config.toml</string>
+        <key>PORT</key>
+        <string>8811</string>
+    </dict>
+    <key>UserName</key>
+    <string>anthropic-proxy</string>
+    <key>GroupName</key>
+    <string>anthropic-proxy</string>
+</dict>
+</plist>
