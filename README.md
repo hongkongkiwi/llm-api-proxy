@@ -24,14 +24,22 @@ A transparent HTTP proxy for LLM APIs (Anthropic, OpenAI) with support for multi
 git clone git@github.com:hongkongkiwi/llm-api-proxy.git
 cd llm-api-proxy
 cargo build --release
+# or using just
+just build-release
 ```
 
 ### Run
 
 ```bash
 cargo run
-# or with custom config
+# or using just
+just run
+
+# with custom config
 CONFIG_PATH=/path/to/config.toml cargo run
+
+# with custom port using just
+just run-port 8080
 ```
 
 ## Configuration
@@ -154,6 +162,7 @@ cargo build --release
 
 # Using just
 just build
+just build-release
 ```
 
 ### Testing
@@ -176,6 +185,7 @@ just test
 just test-unit
 just test-integration
 just test-e2e
+just test-verbose
 ```
 
 ### Linting and Formatting
@@ -192,7 +202,9 @@ cargo clippy
 
 # Using just
 just fmt
+just fmt-check
 just lint
+just lint-all
 ```
 
 ### Development Commands
@@ -206,6 +218,56 @@ cargo run -- --port 8080
 
 # Using just
 just run-port 8080
+just run-dev
+just run-with-proxy http://localhost:8080
+```
+
+### Project Management
+
+```bash
+# Clean build artifacts
+cargo clean
+
+# Check for outdated dependencies
+cargo outdated
+
+# Update dependencies
+cargo update
+
+# Generate documentation
+cargo doc --no-deps
+
+# Open documentation in browser
+cargo doc --no-deps --open
+
+# Using just
+just clean
+just outdated
+just update
+just docs
+just docs-open
+```
+
+### Docker Commands
+
+```bash
+# Build and run Docker container
+docker build -t anthropic-http-proxy .
+docker run -p 8811:8811 anthropic-http-proxy
+
+# Using just
+just docker-build
+just docker-run
+```
+
+### Getting Help
+
+```bash
+# Show all available just commands
+just --list
+
+# Using just
+just help
 ```
 
 ## Architecture
