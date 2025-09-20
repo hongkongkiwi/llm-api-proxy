@@ -28,7 +28,7 @@ dependencies = [
 
 [[package]]
 name = "anthropic-http-proxy"
-version = "0.1.0"
+version = "0.1.3"
 dependencies = [
  "axum",
  "bytes",

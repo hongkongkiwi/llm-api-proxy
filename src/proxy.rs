@@ -15,6 +15,7 @@ pub struct ProxyService {
 }
 
 impl ProxyService {
+    #[allow(dead_code)]
     pub async fn new() -> Result<Self, Box<dyn std::error::Error>> {
         let config = Config::default();
         Self::new_with_config(config).await

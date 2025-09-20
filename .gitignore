@@ -1,0 +1,53 @@
+# Rust build artifacts
+/target/
+**/*.rs.bk
+*.pdb
+
+# Cargo
+Cargo.lock
+
+# IDE and editor files
+.idea/
+*.swp
+*.swo
+*~
+.vscode/
+*.iml
+.DS_Store
+
+# Debug and profiling
+*.profraw
+*.profdata
+perf.data
+perf.data.old
+flamegraph.svg
+
+# Environment and config
+.env
+.env.local
+*.env
+
+# Logs
+*.log
+logs/
+
+# Test artifacts
+tarpaulin-report.html
+cobertura.xml
+
+# Binary outputs
+anthropic-http-proxy
+anthropic-http-proxy.exe
+
+# Docker
+.dockerignore
+
+# Backup files
+*.bak
+*.backup
+*.tmp
+*.temp
+
+# OS specific
+Thumbs.db
+desktop.ini
