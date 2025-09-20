@@ -4,6 +4,8 @@ A transparent HTTP proxy for LLM APIs (Anthropic, OpenAI) with support for multi
 
 ## Features
 
+- **Single Port Operation**: All endpoints served through one port (default: 8811)
+- **Path-Based Routing**: Routes requests based on URL path prefix (`/{endpoint_name}/v1/*`)
 - **Transparent Proxying**: Forwards requests to Anthropic and OpenAI APIs without modification
 - **Multiple Named Endpoints**: Configure different proxy instances (dev, prod, staging, etc.)
 - **TOML Configuration**: Easy-to-read configuration file format
@@ -109,18 +111,32 @@ CONFIG_PATH=/path/to/custom-config.toml cargo run
 just run
 ```
 
+### How It Works
+
+The proxy operates on a **single port** (default: 8811) and uses **path-based routing** to direct requests to different endpoints. Each endpoint is identified by the first segment of the URL path.
+
 ### Making Requests
 
-Once the proxy is running, make requests to:
+Once the proxy is running on port 8811, all requests go to the same port:
 
 ```
 http://localhost:8811/{endpoint_name}/v1/{api_path}
 ```
 
+Where:
+- `{endpoint_name}` matches a configured endpoint in your `config.toml`
+- `/v1/{api_path}` is the API path that gets forwarded to the target
+
 #### Examples
 
-**Anthropic API:**
+**Important:** All endpoints use the same port (8811). The endpoint name in the URL path determines which configuration is used.
+
+**Example 1: Anthropic API via Development Proxy**
 ```bash
+# Request goes to: http://localhost:8811/anthropic_dev/v1/messages
+# Routes through: proxy configured for anthropic_dev endpoint (e.g., http://localhost:8080)
+# Forwards to: https://api.anthropic.com/v1/messages
+
 curl -X POST http://localhost:8811/anthropic_dev/v1/messages \
   -H "Content-Type: application/json" \
   -H "x-api-key: your-anthropic-key" \
@@ -131,8 +147,29 @@ curl -X POST http://localhost:8811/anthropic_dev/v1/messages \
   }'
 ```
 
-**OpenAI API:**
+**Example 2: Anthropic API via Production Proxy**
 ```bash
+# Same port, different endpoint name in path
+# Request goes to: http://localhost:8811/anthropic_prod/v1/messages
+# Routes through: proxy configured for anthropic_prod endpoint (e.g., http://proxy.company.com:3128)
+# Forwards to: https://api.anthropic.com/v1/messages
+
+curl -X POST http://localhost:8811/anthropic_prod/v1/messages \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: your-anthropic-key" \
+  -d '{
+    "model": "claude-3-opus-20240229",
+    "max_tokens": 100,
+    "messages": [{"role": "user", "content": "Production request"}]
+  }'
+```
+
+**Example 3: OpenAI API via Production Proxy**
+```bash
+# Request goes to: http://localhost:8811/openai_prod/v1/chat/completions
+# Routes through: proxy configured for openai_prod endpoint
+# Forwards to: https://api.openai.com/v1/chat/completions
+
 curl -X POST http://localhost:8811/openai_prod/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer your-openai-key" \
@@ -142,12 +179,29 @@ curl -X POST http://localhost:8811/openai_prod/v1/chat/completions \
   }'
 ```
 
-### Endpoint Routing
+**Example 4: Direct Request (No Proxy)**
+```bash
+# If an endpoint has no proxy_url configured, requests go directly to the target
+# Request goes to: http://localhost:8811/direct/v1/messages
+# No proxy used
+# Forwards directly to: configured target_base for 'direct' endpoint
 
-- `/anthropic_dev/v1/*` → Anthropic API through dev proxy
-- `/anthropic_prod/v1/*` → Anthropic API through prod proxy
-- `/openai_dev/v1/*` → OpenAI API through dev proxy
-- `/openai_prod/v1/*` → OpenAI API through prod proxy
+curl -X POST http://localhost:8811/direct/v1/messages \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: your-api-key" \
+  -d '{"model": "model-name", "messages": [{"role": "user", "content": "Direct connection"}]}'
+```
+
+### Path-Based Endpoint Routing
+
+All endpoints share the same port (8811) and are differentiated by their URL path:
+
+- `http://localhost:8811/anthropic_dev/v1/*` → Routes to Anthropic API through dev proxy
+- `http://localhost:8811/anthropic_prod/v1/*` → Routes to Anthropic API through prod proxy
+- `http://localhost:8811/openai_dev/v1/*` → Routes to OpenAI API through dev proxy
+- `http://localhost:8811/openai_prod/v1/*` → Routes to OpenAI API through prod proxy
+
+The proxy extracts the endpoint name from the URL path and uses the corresponding configuration from `config.toml`.
 
 ## Development
 
@@ -490,15 +544,21 @@ The release process:
 
 ## Architecture
 
-The proxy is designed to be completely transparent:
+The proxy uses a single-port, path-based routing architecture:
 
-1. **Request Reception**: Receives HTTP requests on configured port
-2. **Endpoint Routing**: Routes requests based on URL path (`/{endpoint}/v1/...`)
-3. **Proxy Forwarding**: Forwards requests through configured proxy (if any)
-4. **Target API**: Sends requests to the configured target API
-5. **Response Return**: Returns responses back to the client
+1. **Single Port Listener**: Listens on one port (default: 8811) for all incoming requests
+2. **Path-Based Routing**: Extracts endpoint name from URL path (`/{endpoint}/v1/...`)
+3. **Endpoint Configuration**: Looks up configuration for the extracted endpoint name
+4. **HTTP Client Selection**: Each endpoint gets its own HTTP client with optional proxy configuration
+5. **Proxy Forwarding**: Forwards requests through configured proxy (if any)
+6. **Target API**: Sends requests to the configured target API base URL
+7. **Response Return**: Returns responses transparently back to the client
 
-No API-specific logic or request/response modification is performed.
+Key design points:
+- **One port serves all endpoints** - no need for multiple ports
+- **Path prefix determines routing** - the first segment after the host determines which endpoint configuration to use
+- **Each endpoint has independent proxy settings** - different endpoints can use different proxy servers or no proxy at all
+- **No API-specific logic** - completely transparent request/response forwarding
 
 ## Environment Variables
 
