@@ -126,7 +126,7 @@ release:
     git push origin "v$VERSION"
 
 # Build release binaries for all platforms
-build-release:
+build-release-binaries:
     ./examples/build-release.sh
 
 # Default command

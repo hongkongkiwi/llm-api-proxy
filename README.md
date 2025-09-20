@@ -447,7 +447,7 @@ To build release binaries for all platforms:
 
 ```bash
 # Build release packages for all platforms
-just build-release
+just build-release-binaries
 
 # Or run the script directly
 ./examples/build-release.sh
