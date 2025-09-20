@@ -28,3 +28,6 @@ bytes = "1.0"
 temp-env = "0.3"
 tokio-test = "0.4"
 mockito = "1.0"
+
+# Development dependencies for version management
+cargo-bump = "1.1"

@@ -386,13 +386,107 @@ For containerized deployment:
 # Build Docker image
 just docker-build
 
-# Run container
-just docker-run
+# Run container with docker-compose
+docker-compose up -d
 
-# Or manually
-docker build -t anthropic-http-proxy .
-docker run -d -p 8811:8811 -v $(pwd)/config.toml:/etc/anthropic-http-proxy/config.toml anthropic-http-proxy
+# Run container manually
+docker run -d \
+  --name anthropic-http-proxy \
+  -p 8811:8811 \
+  -v $(pwd)/config.toml:/etc/anthropic-http-proxy/config.toml:ro \
+  -v $(pwd)/logs:/var/log/anthropic-http-proxy \
+  --restart unless-stopped \
+  anthropic-http-proxy
+
+# View logs
+docker logs -f anthropic-http-proxy
+
+# Stop container
+docker stop anthropic-http-proxy
 ```
+
+### Compiled Binary Usage
+
+For running pre-compiled binaries:
+
+1. **Download the latest release:**
+   ```bash
+   # Linux x86_64
+   curl -L https://github.com/hongkongkiwi/llm-api-proxy/releases/latest/download/anthropic-http-proxy-linux-x86_64.tar.gz | tar -xz
+   
+   # macOS x86_64
+   curl -L https://github.com/hongkongkiwi/llm-api-proxy/releases/latest/download/anthropic-http-proxy-macos-x86_64.tar.gz | tar -xz
+   
+   # Windows x86_64
+   curl -L https://github.com/hongkongkiwi/llm-api-proxy/releases/latest/download/anthropic-http-proxy-windows-x86_64.zip -o anthropic-http-proxy.zip
+   unzip anthropic-http-proxy.zip
+   ```
+
+2. **Make binary executable (Linux/macOS):**
+   ```bash
+   chmod +x anthropic-http-proxy
+   ```
+
+3. **Run the binary:**
+   ```bash
+   # With default config
+   ./anthropic-http-proxy
+   
+   # With custom config
+   CONFIG_PATH=/path/to/config.toml ./anthropic-http-proxy
+   
+   # With custom port
+   PORT=8080 ./anthropic-http-proxy
+   ```
+
+4. **Install as system service (see System Startup section above)**
+
+### Building Release Binaries
+
+To build release binaries for all platforms:
+
+```bash
+# Build release packages for all platforms
+just build-release
+
+# Or run the script directly
+./examples/build-release.sh
+
+# This creates packages in the releases/ directory:
+# - anthropic-http-proxy-VERSION-linux-x86_64.tar.gz
+# - anthropic-http-proxy-VERSION-linux-aarch64.tar.gz
+# - anthropic-http-proxy-VERSION-macos-x86_64.tar.gz
+# - anthropic-http-proxy-VERSION-macos-aarch64.tar.gz
+# - anthropic-http-proxy-VERSION-windows-x86_64.zip
+```
+
+### Version Management
+
+To manage application versions:
+
+```bash
+# Bump patch version (1.0.0 -> 1.0.1)
+just bump-patch
+
+# Bump minor version (1.0.0 -> 1.1.0)
+just bump-minor
+
+# Bump major version (1.0.0 -> 2.0.0)
+just bump-major
+
+# Set specific version
+just bump-version 1.2.3
+
+# Create release tag and push
+just release
+```
+
+The release process:
+1. Bumps the version in Cargo.toml
+2. Commits the version change
+3. Creates a git tag
+4. Pushes to remote repository
+5. Triggers GitHub Actions to build and publish release artifacts
 
 ## Architecture
 

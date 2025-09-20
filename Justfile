@@ -92,6 +92,43 @@ docker-run:
 help:
     @just --list
 
+# Version management
+# Bump patch version (1.0.0 -> 1.0.1)
+bump-patch:
+    cargo bump patch
+    @echo "Version bumped to $(cargo metadata --format-version=1 | jq -r '.packages[] | select(.name == "anthropic-http-proxy") | .version')"
+
+# Bump minor version (1.0.0 -> 1.1.0)
+bump-minor:
+    cargo bump minor
+    @echo "Version bumped to $(cargo metadata --format-version=1 | jq -r '.packages[] | select(.name == "anthropic-http-proxy") | .version')"
+
+# Bump major version (1.0.0 -> 2.0.0)
+bump-major:
+    cargo bump major
+    @echo "Version bumped to $(cargo metadata --format-version=1 | jq -r '.packages[] | select(.name == "anthropic-http-proxy") | .version')"
+
+# Set specific version
+bump-version version:
+    cargo bump {{version}}
+    @echo "Version set to $(cargo metadata --format-version=1 | jq -r '.packages[] | select(.name == "anthropic-http-proxy") | .version')"
+
+# Create release tag and push
+release:
+    #!/usr/bin/env bash
+    set -e
+    VERSION=$(cargo metadata --format-version=1 | jq -r '.packages[] | select(.name == "anthropic-http-proxy") | .version')
+    echo "Creating release for version $VERSION"
+    git add Cargo.toml
+    git commit -m "Release version $VERSION"
+    git tag -a "v$VERSION" -m "Release version $VERSION"
+    git push origin main
+    git push origin "v$VERSION"
+
+# Build release binaries for all platforms
+build-release:
+    ./examples/build-release.sh
+
 # Default command
 default:
     @just help

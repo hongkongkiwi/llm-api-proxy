@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  anthropic-http-proxy:
+    build: .
+    ports:
+      - "8811:8811"
+    volumes:
+      - ./config.toml:/etc/anthropic-http-proxy/config.toml:ro
+      - ./logs:/var/log/anthropic-http-proxy
+    environment:
+      - CONFIG_PATH=/etc/anthropic-http-proxy/config.toml
+      - PORT=8811
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8811/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
