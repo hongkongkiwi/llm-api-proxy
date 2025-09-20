@@ -1,0 +1,30 @@
+[package]
+name = "anthropic-http-proxy"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "anthropic_http_proxy"
+path = "src/lib.rs"
+
+[dependencies]
+axum = "0.7"
+hyper = "1.0"
+hyper-util = { version = "0.1", features = ["full"] }
+http-body-util = "0.1"
+tokio = { version = "1.0", features = ["full"] }
+reqwest = { version = "0.11", features = ["json", "stream"] }
+tower = "0.4"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+toml = "0.8"
+url = "2.5"
+futures = "0.3"
+bytes = "1.0"
+
+[dev-dependencies]
+temp-env = "0.3"
+tokio-test = "0.4"
+mockito = "1.0"

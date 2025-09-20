@@ -1,0 +1,19 @@
+[server]
+port = 8811
+target_base = "https://api.anthropic.com"
+
+[endpoints.anthropic_dev]
+proxy_url = "http://localhost:8080"
+target_base = "https://api.anthropic.com"
+
+[endpoints.anthropic_prod]
+proxy_url = "http://proxy.company.com:3128"
+target_base = "https://api.anthropic.com"
+
+[endpoints.openai_dev]
+proxy_url = "http://localhost:8081"
+target_base = "https://api.openai.com/v1"
+
+[endpoints.openai_prod]
+proxy_url = "http://proxy.company.com:3129"
+target_base = "https://api.openai.com/v1"

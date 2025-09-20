@@ -1,0 +1,45 @@
+# Example configuration for anthropic-http-proxy
+# Copy this file to config.toml and customize as needed
+
+[server]
+# Port to listen on (default: 8811)
+port = 8811
+
+# Default target base URL for all endpoints (can be overridden per endpoint)
+target_base = "https://api.anthropic.com"
+
+# Define your proxy endpoints here
+# Each endpoint can have its own proxy URL, target base URL, and API type
+# Requests to /{endpoint_name}/v1/... will use the corresponding configuration
+
+# Anthropic API endpoints
+[endpoints.anthropic_dev]
+# Proxy URL for the Anthropic dev endpoint (optional)
+proxy_url = "http://localhost:8080"
+
+# Target base URL for Anthropic dev endpoint
+target_base = "https://api.anthropic.com"
+
+[endpoints.anthropic_prod]
+# Production Anthropic proxy configuration
+proxy_url = "http://proxy.company.com:3128"
+target_base = "https://api.anthropic.com"
+
+# OpenAI API endpoints
+[endpoints.openai_dev]
+# Proxy URL for the OpenAI dev endpoint (optional)
+proxy_url = "http://localhost:8081"
+
+# Target base URL for OpenAI dev endpoint (note the /v1 suffix)
+target_base = "https://api.openai.com/v1"
+
+[endpoints.openai_prod]
+# Production OpenAI proxy configuration
+proxy_url = "http://proxy.company.com:3129"
+target_base = "https://api.openai.com/v1"
+
+# Add more endpoints as needed
+# [endpoints.custom]
+# proxy_url = "http://custom-proxy:8080"
+# target_base = "https://custom-api.example.com"
+# api_type = "custom"
