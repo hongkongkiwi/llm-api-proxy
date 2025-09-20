@@ -2,6 +2,10 @@
 
 A transparent HTTP proxy for LLM APIs (Anthropic, OpenAI) with support for multiple named endpoints and proxy configurations.
 
+## Contributing
+
+Review the repository guidelines in [AGENTS.md](AGENTS.md) before opening a PR or pushing new changes.
+
 ## Features
 
 - **Single Port Operation**: All endpoints served through one port (default: 8811)
