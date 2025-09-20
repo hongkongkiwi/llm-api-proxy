@@ -33,10 +33,10 @@ cargo test
 just test
 
 # Run specific test suites
-just test-unit        # Unit tests only
-just test-integration # Integration tests
-just test-e2e        # E2E tests
-just test-verbose    # Tests with verbose output
+just test-unit        # Unit tests only (--lib)
+just test-integration # Integration tests (--test integration_tests)
+just test-e2e        # E2E tests (--test e2e_tests)
+just test-verbose    # Tests with verbose output (-- --nocapture)
 ```
 
 ### Code Quality
@@ -55,6 +55,11 @@ just lint
 
 # Lint with all features and warnings
 just lint-all
+
+# Check and update dependencies
+just outdated    # Check for outdated dependencies
+just update      # Update dependencies
+just clean       # Clean build artifacts
 ```
 
 ### Docker
@@ -64,6 +69,15 @@ just docker-build
 
 # Run Docker container
 just docker-run
+```
+
+### Development
+```bash
+# Development workflow
+just run-dev                    # Run with ANTHROPIC_API_BASE env var
+just run-with-proxy URL         # Run with custom proxy URL
+just docs                       # Generate documentation
+just docs-open                  # Open docs in browser
 ```
 
 ## Architecture
@@ -82,10 +96,12 @@ just docker-run
    - Loads from TOML files with fallback to defaults
 
 3. **proxy.rs**: Core proxy logic
-   - `ProxyService`: Manages multiple HTTP clients with different proxy configurations
-   - Creates one client per endpoint with optional proxy
-   - Extracts endpoint name from URL path to select appropriate client
-   - Transparently forwards requests and responses between client and target API
+   - `ProxyService`: Main service that creates and manages HTTP clients for each endpoint
+   - `new()`: Creates service with default target base from config
+   - `new_with_config()`: Creates service with specific configuration
+   - `handle_request()`: Routes requests to appropriate client based on endpoint name
+   - Each endpoint gets independent reqwest::Client with optional proxy settings
+   - Transparently forwards requests/responses without modification
 
 ### Request Flow
 
@@ -110,9 +126,17 @@ Configuration is managed through `config.toml`:
 - Server settings: port and default target base URL
 - Endpoints: HashMap of named configurations with optional proxy URLs and target base overrides
 - Environment variable `CONFIG_PATH` can override config file location
+- Environment variable `PORT` can override the server port
+- Environment variables: `ENDPOINT_{NAME}_PROXY` can set proxy URLs per endpoint
 
 ## Testing Strategy
 
 - **Unit tests**: In-module tests for individual functions (config parsing, path extraction)
-- **Integration tests**: Located in `tests/integration_tests.rs` (if present)
-- **E2E tests**: Located in `tests/e2e_tests.rs` (if present)
+- **Integration tests**: Located in `tests/integration_tests.rs`
+  - Tests ProxyService creation and basic request handling
+  - Tests path prefix routing and error scenarios
+  - Tests environment variable proxy configuration
+- **E2E tests**: Located in `tests/e2e_tests.rs`
+  - Tests full proxy request flow with mock target servers
+  - Tests custom port functionality
+  - Uses actual HTTP requests to verify end-to-end behavior
